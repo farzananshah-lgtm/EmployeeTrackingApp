@@ -1,0 +1,91 @@
+﻿@page "/employee-form"
+@inject HttpClient Http
+
+<h3>Create Employee</h3>
+
+<EditForm Model="@employee" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="firstName" class="form-label">First Name</label>
+        <InputText id="firstName" @bind-Value="employee.FirstName" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label for="lastName" class="form-label">Last Name</label>
+        <InputText id="lastName" @bind-Value="employee.LastName" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <InputText id="email" @bind-Value="employee.Email" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label for="department" class="form-label">Department</label>
+        <InputText id="department" @bind-Value="employee.DepartmentName" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label for="address" class="form-label">Address</label>
+        <InputText id="address" @bind-Value="employee.AddressLine" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label for="city" class="form-label">City</label>
+        <InputText id="city" @bind-Value="employee.City" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label for="country" class="form-label">Country</label>
+        <InputText id="country" @bind-Value="employee.Country" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <div class="alert alert-info mt-3">@message</div>
+    }
+</EditForm>
+
+@code {
+    private EmployeeRequest employee = new();
+    private string? message;
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            Console.WriteLine("Sending: " + JsonSerializer.Serialize(employee));
+
+            var response = await Http.PostAsJsonAsync("api/employee", employee);
+
+            if (response.IsSuccessStatusCode)
+            {
+                message = "✅ Employee created successfully!";
+                employee = new(); // Reset the form
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"API Error: {error}");
+                message = $"❌ Failed to create employee: {error}";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"❌ Error: {ex.Message}";
+        }
+    }
+
+    public class EmployeeRequest
+    {
+        [Required(ErrorMessage = "First Name is required")]
+        public string? FirstName { get; set; }
+
+        [Required(ErrorMessage = "Last Name is required")]
+        public string? LastName { get; set; }
+
+        [Required(ErrorMessage = "Email]()

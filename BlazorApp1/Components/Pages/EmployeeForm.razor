@@ -1,0 +1,97 @@
+﻿@page "/employee-form"
+@inject HttpClient Http
+@using System.Net.Http.Json
+
+<h3>Create Employee</h3>
+
+<EditForm Model="employee" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Email:</label>
+        <InputText @bind-Value="employee.Email" />
+    </div>
+    <div>
+        <label>First Name:</label>
+        <InputText @bind-Value="employee.FirstName" />
+    </div>
+    <div>
+        <label>Last Name:</label>
+        <InputText @bind-Value="employee.LastName" />
+    </div>
+    <div>
+        <label>Date of Employment:</label>
+        <InputDate @bind-Value="employee.DateOfEmployment" />
+    </div>
+    <div>
+        <label>Department Name:</label>
+        <InputText @bind-Value="employee.DepartmentName" />
+    </div>
+    <div>
+        <label>Street:</label>
+        <InputText @bind-Value="employee.Street" />
+    </div>
+    <div>
+        <label>City:</label>
+        <InputText @bind-Value="employee.City" />
+    </div>
+    <div>
+        <label>Country:</label>
+        <InputText @bind-Value="employee.Country" />
+    </div>
+
+    <button type="submit">Save</button>
+</EditForm>
+
+@if (successMessage != null)
+{
+    <p style="color:green">@successMessage</p>
+}
+@if (errorMessage != null)
+{
+    <p style="color:red">@errorMessage</p>
+}
+
+@code {
+    private EmployeeCreateRequest employee = new();
+    private string? successMessage;
+    private string? errorMessage;
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            var response = await Http.PostAsJsonAsync("api/employee", employee);
+
+            if (response.IsSuccessStatusCode)
+            {
+                successMessage = "Employee saved successfully!";
+                errorMessage = null;
+                employee = new(); // Reset form
+            }
+            else
+            {
+                errorMessage = "Failed to save employee.";
+                successMessage = null;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+    }
+
+    public class EmployeeCreateRequest
+    {
+        public string Email { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public DateTime DateOfEmployment { get; set; }
+        public string DepartmentName { get; set; }
+        public string Street { get; set; }
+        public string City { get; set; }
+        public string Country { get; set; }
+    }
+}
+
